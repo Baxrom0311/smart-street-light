@@ -1,0 +1,83 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --accent: #3b82f6;
+  --green: #10b981;
+  --orange: #f59e0b;
+  --red: #ef4444;
+}
+
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+
+.app { max-width: 480px; margin: 0 auto; padding: 16px; min-height: 100vh; }
+
+header { text-align: center; margin-bottom: 20px; }
+header h1 { font-size: 1.4rem; margin-bottom: 12px; }
+header nav { display: flex; gap: 8px; justify-content: center; }
+header nav button { padding: 8px 20px; border: none; border-radius: 20px; background: var(--card); color: var(--muted); font-size: 0.9rem; cursor: pointer; }
+header nav button.active { background: var(--accent); color: white; }
+
+.card { background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+
+.loading { text-align: center; padding: 40px; color: var(--muted); }
+
+/* Light Card */
+.light-card { text-align: center; padding: 24px; }
+.light-card.on { border: 2px solid var(--orange); box-shadow: 0 0 20px rgba(245,158,11,0.2); }
+.light-card.off { border: 2px solid var(--muted); }
+.light-icon { font-size: 3rem; margin-bottom: 8px; }
+.light-card h2 { font-size: 1.2rem; }
+.mode-badge { margin-top: 8px; color: var(--muted); font-size: 0.85rem; }
+
+/* Control */
+.control-card h3 { margin-bottom: 12px; }
+.control-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
+.mode-toggle { display: flex; gap: 4px; }
+.mode-toggle button { padding: 6px 16px; border: 1px solid var(--muted); border-radius: 16px; background: transparent; color: var(--muted); cursor: pointer; font-size: 0.85rem; }
+.mode-toggle button.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+/* Toggle Switch */
+.switch { position: relative; width: 50px; height: 26px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; inset: 0; background: #475569; border-radius: 26px; cursor: pointer; transition: 0.3s; }
+.slider::before { content: ''; position: absolute; width: 20px; height: 20px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+.switch input:checked + .slider { background: var(--green); }
+.switch input:checked + .slider::before { transform: translateX(24px); }
+
+/* Sensors */
+.sensor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sensor-item { text-align: center; padding: 12px; background: var(--bg); border-radius: 8px; }
+.sensor-label { display: block; color: var(--muted); font-size: 0.8rem; margin-bottom: 4px; }
+.sensor-value { display: block; font-size: 1.4rem; font-weight: bold; }
+.sensor-status { display: block; font-size: 0.75rem; margin-top: 4px; color: var(--muted); }
+
+/* Status */
+.status-grid { display: flex; flex-direction: column; gap: 8px; }
+.status-grid div { display: flex; justify-content: space-between; font-size: 0.9rem; }
+.status-grid div span:first-child { color: var(--muted); }
+
+/* Settings */
+.settings { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+.settings label { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
+.settings input { width: 80px; padding: 6px; border: 1px solid var(--muted); border-radius: 6px; background: var(--bg); color: var(--text); text-align: center; }
+.save-btn { padding: 10px; border: none; border-radius: 8px; background: var(--green); color: white; font-weight: bold; cursor: pointer; }
+
+/* Statistics */
+.summary-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.summary-card { text-align: center; padding: 12px 8px; }
+.summary-card.green { border-top: 3px solid var(--green); }
+.summary-card.blue { border-top: 3px solid var(--accent); }
+.summary-card.orange { border-top: 3px solid var(--orange); }
+.summary-value { display: block; font-size: 1.3rem; font-weight: bold; }
+.summary-label { display: block; font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
+
+.chart-card h3 { margin-bottom: 12px; font-size: 0.95rem; }
+
+/* Demo/Live toggle */
+header nav button.demo, header nav button.demo-active { margin-left: auto; font-size: 0.75rem; padding: 6px 12px; }
+header nav button.demo-active { background: var(--orange); color: #000; }
+header nav button.demo { background: var(--green); color: #000; }
