@@ -80,7 +80,20 @@ void loopFirebase() {
     }
   }
 
-  if (isMotionDetected()) lastMotionTs = millis() / 1000;
+  // Motion log (rising edge only)
+  static bool lastMotionState = false;
+  bool currentMotion = isMotionDetected();
+  if (currentMotion && !lastMotionState) {
+    lastMotionTs = millis() / 1000;
+    FirebaseJson logEntry;
+    logEntry.set("time", (int)(lastMotionTs * 1000));
+    logEntry.set("distance", (int)getDistance());
+    logEntry.set("light", getAmbientLight());
+    Firebase.push(fbdo, "/motion_log", logEntry);
+  }
+  lastMotionState = currentMotion;
+
+  if (currentMotion) lastMotionTs = millis() / 1000;
 
   FirebaseJson json;
   json.set("light_on", isLightOn());

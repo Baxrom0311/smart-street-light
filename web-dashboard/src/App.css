@@ -26,10 +26,11 @@ header nav button.active { background: var(--accent); color: white; }
 .loading { text-align: center; padding: 40px; color: var(--muted); }
 
 /* Light Card */
-.light-card { text-align: center; padding: 24px; }
+.light-card { text-align: center; padding: 24px; transition: all 0.3s ease; }
 .light-card.on { border: 2px solid var(--orange); box-shadow: 0 0 20px rgba(245,158,11,0.2); }
 .light-card.off { border: 2px solid var(--muted); }
-.light-icon { font-size: 3rem; margin-bottom: 8px; }
+.light-icon { font-size: 3rem; margin-bottom: 8px; animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 .light-card h2 { font-size: 1.2rem; }
 .mode-badge { margin-top: 8px; color: var(--muted); font-size: 0.85rem; }
 
@@ -116,3 +117,14 @@ header nav button.demo { background: var(--green); color: #000; }
 
 /* Logout */
 .logout { background: transparent !important; color: var(--muted) !important; font-size: 1.1rem; padding: 6px 10px !important; }
+
+/* Online/Offline indicator */
+.device-status { display: flex; align-items: center; gap: 6px; justify-content: center; margin-bottom: 12px; font-size: 0.8rem; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; }
+.status-dot.online { background: var(--green); box-shadow: 0 0 6px var(--green); animation: blink 2s infinite; }
+.status-dot.offline { background: var(--red); }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+/* Card animations */
+.card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }

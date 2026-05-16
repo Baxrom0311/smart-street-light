@@ -62,10 +62,17 @@ function App() {
   if (authLoading) return <div className="app"><div className="loading">Yuklanmoqda...</div></div>;
   if (!user && !demoMode) return <Login />;
 
+  // Device online check (if uptime updated in last 10s)
+  const isOnline = status && (Date.now() / 1000 - status.uptime < 30);
+
   return (
     <div className="app">
       <header>
         <h1>🔆 Smart Street Light</h1>
+        <div className="device-status">
+          <span className={`status-dot ${status && !demoMode ? 'online' : demoMode ? 'online' : 'offline'}`}></span>
+          <span>{demoMode ? 'Demo' : status ? 'Online' : 'Offline'}</span>
+        </div>
         <nav>
           <button className={tab === 'dashboard' ? 'active' : ''} onClick={() => setTab('dashboard')}>Boshqaruv</button>
           <button className={tab === 'stats' ? 'active' : ''} onClick={() => setTab('stats')}>Statistika</button>
