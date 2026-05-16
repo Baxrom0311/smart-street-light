@@ -60,6 +60,7 @@ void setupFirebase() {
 }
 
 void loopFirebase() {
+  if (WiFi.status() != WL_CONNECTED) return;
   if (!Firebase.ready()) return;
   if (millis() - lastSend < 3000) return;
   lastSend = millis();

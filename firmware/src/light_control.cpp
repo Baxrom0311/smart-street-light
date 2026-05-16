@@ -1,44 +1,61 @@
 #include "light_control.h"
 #include "sensors.h"
 #include "config.h"
+#include <FastLED.h>
 
+static CRGB leds[NUM_LEDS];
 static bool lightOn = false;
 static bool manualLight = false;
 static String mode = "auto";
-static unsigned long lastMotionTime = 0;
 static int timeoutSec = DEFAULT_TIMEOUT_SEC;
 static int lightThreshold = DEFAULT_LIGHT_THRESHOLD;
 static int distanceThreshold = DEFAULT_DISTANCE_THRESHOLD;
+static bool isDarkState = false; // hysteresis holati
 
-static void setRelay(bool on) {
+static void setStrip(bool on) {
+  if (on == lightOn) return;
   lightOn = on;
-  digitalWrite(RELAY_PIN, on ? HIGH : LOW);
   digitalWrite(LED_PIN, on ? HIGH : LOW);
+
+  if (on) {
+    fill_solid(leds, NUM_LEDS, CRGB::White);
+    FastLED.setBrightness(255);
+  } else {
+    fill_solid(leds, NUM_LEDS, CRGB::Black);
+    FastLED.setBrightness(0);
+  }
+  delay(1);
+  FastLED.show();
+  delay(1);
+  Serial.printf(">>> LED STRIP: %s\n", on ? "ON" : "OFF");
 }
 
 void setupLightControl() {
-  pinMode(RELAY_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
-  setRelay(false);
-  Serial.println("Rele tayyor");
+  FastLED.addLeds<WS2812B, LED_STRIP_PIN, GRB>(leds, NUM_LEDS);
+  FastLED.setBrightness(0);
+  fill_solid(leds, NUM_LEDS, CRGB::Black);
+  FastLED.show();
+  Serial.println("LED strip tayyor");
 }
 
 void loopLightControl() {
   if (mode == "manual") {
-    setRelay(manualLight);
+    setStrip(manualLight);
     return;
   }
 
-  // Auto mode
-  bool isDark = getAmbientLight() < lightThreshold;
-  bool motion = isMotionDetected();
+  // Hysteresis: 250 dan pastga tushsa — qorong'u, 350 dan oshsa — yorug'
+  int light = getAmbientLight();
+  if (light < lightThreshold - 50) isDarkState = true;
+  else if (light > lightThreshold + 50) isDarkState = false;
 
-  if (motion) lastMotionTime = millis();
-
-  if (isDark && (millis() - lastMotionTime < (unsigned long)timeoutSec * 1000)) {
-    setRelay(true);
+  if (!isDarkState) {
+    setStrip(false);
+  } else if (isMotionDetected()) {
+    setStrip(true);
   } else {
-    setRelay(false);
+    setStrip(false);
   }
 }
 

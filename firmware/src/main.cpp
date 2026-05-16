@@ -1,54 +1,48 @@
 #include <Arduino.h>
-#include <WiFi.h>
-#include <WiFiManager.h>
-#include "config.h"
-#include "sensors.h"
-#include "light_control.h"
-#include "firebase_handler.h"
-#include "statistics.h"
+#include <FastLED.h>
 
-WiFiManager wm;
+#define DATA_PIN 26
+#define NUM_LEDS 13
 
-void setupWiFi() {
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
-  Serial.print("WiFi ga ulanmoqda");
-
-  unsigned long start = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - start < 10000) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("\nHardcode WiFi topilmadi. WiFiManager AP ochilmoqda...");
-    wm.setConfigPortalTimeout(180);
-    if (!wm.autoConnect("SmartLight-AP")) {
-      Serial.println("WiFi ulanmadi. Qayta ishga tushirilmoqda...");
-      ESP.restart();
-    }
-  }
-
-  Serial.println("\nWiFi ulandi!");
-  Serial.print("IP: ");
-  Serial.println(WiFi.localIP());
-}
+CRGB leds[NUM_LEDS];
 
 void setup() {
   Serial.begin(115200);
   delay(1000);
-  Serial.println("\n=== Smart Street Light ===");
+  Serial.println("FastLED TEST - GPIO 27, 13 LEDs");
 
-  setupWiFi();
-  setupSensors();
-  setupLightControl();
-  setupFirebase();
-  setupStatistics();
+  FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
+  FastLED.setBrightness(255);
+  fill_solid(leds, NUM_LEDS, CRGB::Black);
+  FastLED.show();
+  delay(500);
+
+  Serial.println("WHITE ON");
+  fill_solid(leds, NUM_LEDS, CRGB::White);
+  FastLED.show();
 }
 
 void loop() {
-  loopSensors();
-  loopLightControl();
-  loopFirebase();
-  loopStatistics();
+  // 3s oq, 2s o'chiq
+  Serial.println("ON - WHITE");
+  fill_solid(leds, NUM_LEDS, CRGB::White);
+  FastLED.setBrightness(255);
+  FastLED.show();
+  delay(3000);
+
+  Serial.println("OFF");
+  fill_solid(leds, NUM_LEDS, CRGB::Black);
+  FastLED.show();
+  delay(2000);
+
+  Serial.println("ON - RED");
+  fill_solid(leds, NUM_LEDS, CRGB::Red);
+  FastLED.setBrightness(255);
+  FastLED.show();
+  delay(3000);
+
+  Serial.println("OFF");
+  fill_solid(leds, NUM_LEDS, CRGB::Black);
+  FastLED.show();
+  delay(2000);
 }

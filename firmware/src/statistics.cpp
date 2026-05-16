@@ -30,6 +30,7 @@ void setupStatistics() {
 }
 
 void loopStatistics() {
+  if (WiFi.status() != WL_CONNECTED) return;
   if (!Firebase.ready()) return;
 
   unsigned long now = millis();

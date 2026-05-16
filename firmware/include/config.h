@@ -1,15 +1,16 @@
 #pragma once
 
 // WiFi credentials (hardcode fallback)
-#define WIFI_SSID "YOUR_WIFI_SSID"
-#define WIFI_PASS "YOUR_WIFI_PASSWORD"
+#define WIFI_SSID "baxrom0311"
+#define WIFI_PASS "baxrom0311"
 
 // Pin definitions
-#define TRIG_PIN 5
-#define ECHO_PIN 18
-#define LIGHT_PIN 34
-#define RELAY_PIN 26
-#define LED_PIN 2
+#define TRIG_PIN 4    // Ultrasonic TRIG - xavfsiz output pin
+#define ECHO_PIN 16   // Ultrasonic ECHO - xavfsiz input pin
+#define LIGHT_PIN 34  // TEMT6000 analog - faqat input pin (ADC1)
+#define LED_STRIP_PIN 27  // WS2812B data pin
+#define NUM_LEDS 13       // LED strip soni
+#define LED_PIN 2     // Onboard LED (status)
 
 // Thresholds (defaults, overridden by Firebase)
 #define DEFAULT_LIGHT_THRESHOLD 300

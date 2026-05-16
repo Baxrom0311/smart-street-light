@@ -9,7 +9,7 @@ const mockStatus = {
   wifi_rssi: -42
 };
 
-const mockControl = { mode: 'auto', manual_light: false };
+const mockControl = { mode: 'auto', manual_light: false, brightness: 100, led_color: '#ffffff', schedule_on: '18:00', schedule_off: '06:00' };
 const mockConfig = { timeout_sec: 30, light_threshold: 300, distance_threshold: 200 };
 
 const today = new Date();
