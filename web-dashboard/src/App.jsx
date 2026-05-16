@@ -88,6 +88,10 @@ function App() {
         {tab === 'stats' && <Statistics history={history} />}
         {tab === 'log' && <MotionLog demoMode={demoMode} />}
       </main>
+      <footer className="app-footer">
+        <p>🔆 Smart Street Light IoT v3.0</p>
+        <p>Diplom ishi — Baxrom, 2026</p>
+      </footer>
     </div>
   );
 }

@@ -1,48 +1,75 @@
 #include <Arduino.h>
-#include <FastLED.h>
+#include <WiFi.h>
+#include "config.h"
+#include "sensors.h"
+#include "light_control.h"
+#include "firebase_handler.h"
+#include "statistics.h"
 
-#define DATA_PIN 26
-#define NUM_LEDS 13
+static bool wifiConnected = false;
+static bool firebaseStarted = false;
 
-CRGB leds[NUM_LEDS];
+void setupWiFi() {
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  Serial.print("WiFi ga ulanmoqda");
+
+  int attempts = 0;
+  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
+    delay(500);
+    Serial.print(".");
+    attempts++;
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    wifiConnected = true;
+    Serial.printf("\nWiFi ulandi! IP: %s\n", WiFi.localIP().toString().c_str());
+  } else {
+    wifiConnected = false;
+    Serial.println("\nWiFi ulanmadi. Offline rejimda ishlaydi.");
+  }
+}
+
+void checkWiFi() {
+  static unsigned long lastCheck = 0;
+  if (millis() - lastCheck < 30000) return;
+  lastCheck = millis();
+
+  if (WiFi.status() != WL_CONNECTED) {
+    if (wifiConnected) Serial.println("WiFi uzildi!");
+    wifiConnected = false;
+    WiFi.reconnect();
+  } else if (!wifiConnected) {
+    wifiConnected = true;
+    Serial.printf("WiFi qayta ulandi! IP: %s\n", WiFi.localIP().toString().c_str());
+  }
+}
 
 void setup() {
   Serial.begin(115200);
   delay(1000);
-  Serial.println("FastLED TEST - GPIO 27, 13 LEDs");
+  Serial.println("\n=== Smart Street Light v3 ===");
 
-  FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
-  FastLED.setBrightness(255);
-  fill_solid(leds, NUM_LEDS, CRGB::Black);
-  FastLED.show();
-  delay(500);
+  setupSensors();
+  setupLightControl();
+  setupWiFi();
 
-  Serial.println("WHITE ON");
-  fill_solid(leds, NUM_LEDS, CRGB::White);
-  FastLED.show();
+  if (wifiConnected) {
+    setupFirebase();
+    setupStatistics();
+    firebaseStarted = true;
+  }
+
+  Serial.println("Tizim tayyor!");
 }
 
 void loop() {
-  // 3s oq, 2s o'chiq
-  Serial.println("ON - WHITE");
-  fill_solid(leds, NUM_LEDS, CRGB::White);
-  FastLED.setBrightness(255);
-  FastLED.show();
-  delay(3000);
+  loopSensors();
+  loopLightControl();
+  checkWiFi();
 
-  Serial.println("OFF");
-  fill_solid(leds, NUM_LEDS, CRGB::Black);
-  FastLED.show();
-  delay(2000);
-
-  Serial.println("ON - RED");
-  fill_solid(leds, NUM_LEDS, CRGB::Red);
-  FastLED.setBrightness(255);
-  FastLED.show();
-  delay(3000);
-
-  Serial.println("OFF");
-  fill_solid(leds, NUM_LEDS, CRGB::Black);
-  FastLED.show();
-  delay(2000);
+  if (wifiConnected && firebaseStarted) {
+    loopFirebase();
+    loopStatistics();
+  }
 }

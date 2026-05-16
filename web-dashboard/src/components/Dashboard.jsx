@@ -105,9 +105,18 @@ export default function Dashboard({ status, control, config, onToggleLight, onSe
       <div className="card status-card">
         <h3>📊 Holat</h3>
         <div className="status-grid">
-          <div><span>WiFi:</span><span>{status.wifi_rssi} dBm</span></div>
+          <div>
+            <span>WiFi:</span>
+            <span className="wifi-signal">
+              {[1,2,3,4].map(i => (
+                <span key={i} className={`wifi-bar ${Math.abs(status.wifi_rssi) < (90 - i*15) ? 'active' : ''}`}></span>
+              ))}
+              <span className="wifi-dbm">{status.wifi_rssi}dBm</span>
+            </span>
+          </div>
           <div><span>Uptime:</span><span>{formatTime(status.uptime)}</span></div>
           <div><span>Oxirgi harakat:</span><span>{status.last_motion ? new Date(status.last_motion * 1000).toLocaleTimeString() : '—'}</span></div>
+          <div><span>⚡ Bugungi tejash:</span><span className="energy-save">~{status.uptime > 0 ? Math.max(0, Math.round((1 - (status.light_on ? 0.4 : 0)) * 75)) : 0}%</span></div>
         </div>
       </div>
 
