@@ -13,59 +13,44 @@
 
 ## Ulash sxemasi
 
-```mermaid
-graph LR
-    subgraph ESP32["ESP32 DevKit 38-pin"]
-        G4[GPIO 4<br/>OUTPUT]
-        G16[GPIO 16<br/>INPUT]
-        G34[GPIO 34<br/>ANALOG]
-        G26[GPIO 26<br/>OUTPUT]
-        G2[GPIO 2<br/>STATUS]
-        V33[3.3V]
-        GND[GND]
-    end
+```
+                         ┌───────────────────────┐
+                         │      ESP32 DevKit      │
+                         │                       │
+    ┌──────────┐         │  3.3V ●───────────┐   │         ┌──────────┐
+    │RCWL-9610A│         │                   │   │         │  RELAY   │
+    │          │         │  GND  ●───────┐   │   │         │  MODULE  │
+    │ VCC ─────┼─────────┼───────────────┼───┘   │         │          │
+    │ GND ─────┼─────────┼───────────────┘       │         │ VCC ─────┼── 3.3V
+    │ TRIG ────┼─────────┼── GPIO 4              │         │ GND ─────┼── GND
+    │ ECHO ────┼─────────┼── GPIO 16             │         │ IN ──────┼── GPIO 26
+    └──────────┘         │                       │         │          │
+                         │                       │         │ COM ─────┼──┐
+    ┌──────────┐         │                       │         │ NO ──────┼──┼──┐
+    │ TEMT6000 │         │                       │         └──────────┘  │  │
+    │          │         │                       │                       │  │
+    │ VCC ─────┼─────────┼── 3.3V                │         ┌──────────┐  │  │
+    │ GND ─────┼─────────┼── GND                 │         │ 💡 LED   │  │  │
+    │ OUT ─────┼─────────┼── GPIO 34 (ADC)       │         │  CHIROQ  │  │  │
+    └──────────┘         │                       │         │          │  │  │
+                         │  GPIO 2 ● (Status LED)│         │ (+) ─────┼──┘  │
+                         │                       │         │ (-) ─────┼─────┘
+    ┌──────────┐         │                       │         └──────────┘
+    │☀️ SOLAR  │         │  VIN/USB ● (Quvvat)   │
+    │  PANEL   ├─────────┼── 5V                  │
+    └──────────┘         └───────────────────────┘
+```
 
-    subgraph RCWL["RCWL-9610A<br/>Ultratovush"]
-        TRIG[TRIG]
-        ECHO[ECHO]
-        RVCC[VCC]
-        RGND[GND]
-    end
+## Signal yo'nalishlari
 
-    subgraph TEMT["TEMT6000<br/>Yorug'lik"]
-        TOUT[OUT]
-        TVCC[VCC]
-        TGND[GND]
-    end
-
-    subgraph RELAY["Relay Module"]
-        RIN[IN]
-        RVCC2[VCC]
-        RGND2[GND]
-        COM[COM]
-        NO[NO]
-    end
-
-    subgraph LOAD["Yuk"]
-        LAMP[💡 LED Chiroq]
-        PWR[Quvvat manbai]
-    end
-
-    G4 -->|Signal| TRIG
-    ECHO -->|Signal| G16
-    V33 --> RVCC
-    GND --> RGND
-
-    TOUT -->|Analog| G34
-    V33 --> TVCC
-    GND --> TGND
-
-    G26 -->|Signal| RIN
-    V33 --> RVCC2
-    GND --> RGND2
-    COM --- LAMP
-    NO --- PWR
-    PWR --- LAMP
+```
+    ESP32                    Komponent           Yo'nalish
+    ─────                    ─────────           ─────────
+    GPIO 4  ──────────────►  RCWL TRIG           OUTPUT (10μs pulse)
+    GPIO 16 ◄──────────────  RCWL ECHO           INPUT  (duration)
+    GPIO 34 ◄──────────────  TEMT6000 OUT        ANALOG INPUT (0-4095)
+    GPIO 26 ──────────────►  RELAY IN            OUTPUT (HIGH/LOW)
+    GPIO 2  ──────────────►  Onboard LED         OUTPUT (status)
 ```
 
 ## Pin konfiguratsiya diagrammasi
