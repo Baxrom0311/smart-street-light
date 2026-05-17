@@ -16,7 +16,7 @@ function App() {
   const [config, setConfig] = useState(mockConfig);
   const [history, setHistory] = useState(mockHistory);
   const [tab, setTab] = useState('home');
-  const [isLive, setIsLive] = useState(false);
+  const [isLive, setIsLive] = useState(() => localStorage.getItem('isLive') === 'true');
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, u => { setUser(u); setAuthLoading(false); });
@@ -85,7 +85,7 @@ function App() {
       <div className="main-area">
         <header className="topbar">
           <h1>{tab === 'home' ? 'Boshqaruv paneli' : tab === 'stats' ? 'Statistika' : tab === 'log' ? 'Harakat logi' : 'Sozlamalar'}</h1>
-          <button className={`live-toggle ${isLive ? 'live' : 'demo'}`} onClick={() => setIsLive(!isLive)}>
+          <button className={`live-toggle ${isLive ? 'live' : 'demo'}`} onClick={() => { const next = !isLive; setIsLive(next); localStorage.setItem('isLive', next); }}>
             <span className="live-dot"></span>
             {isLive ? 'Live' : 'Demo'}
           </button>
