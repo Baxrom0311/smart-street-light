@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WebServer.h>
+#include <DNSServer.h>
 #include "config.h"
 #include "sensors.h"
 #include "light_control.h"
@@ -11,6 +12,7 @@ static bool wifiConnected = false;
 static bool firebaseStarted = false;
 static bool apMode = false;
 static WebServer server(80);
+static DNSServer dnsServer;
 static unsigned long wifiRetryTime = 0;
 static int wifiFailCount = 0;
 
@@ -44,8 +46,11 @@ void handleSave() {
 void startAP() {
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP("SmartLight-Setup", "12345678");
+  // Captive portal: har qanday domen → 192.168.4.1
+  dnsServer.start(53, "*", WiFi.softAPIP());
   server.on("/", handleRoot);
   server.on("/save", HTTP_POST, handleSave);
+  server.onNotFound(handleRoot); // Har qanday URL → setup sahifasi
   server.begin();
   apMode = true;
   Serial.printf("AP ochildi: SmartLight-Setup (192.168.4.1)\n");
@@ -82,6 +87,7 @@ void setupWiFi() {
 void checkWiFi() {
   // AP mode da server handle qilish
   if (apMode) {
+    dnsServer.processNextRequest();
     server.handleClient();
   }
 
@@ -101,6 +107,8 @@ void checkWiFi() {
       }
       // AP ni o'chirish
       if (apMode) {
+        dnsServer.stop();
+        server.stop();
         WiFi.softAPdisconnect(true);
         apMode = false;
         Serial.println("AP o'chirildi");
