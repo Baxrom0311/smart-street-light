@@ -15,20 +15,16 @@ export default function Dashboard({ status, control, onToggleLight, onSetMode, c
   }, [status?.light_on, optimisticLight]);
 
   const handleToggle = () => {
-    const newState = !displayLight;
+    const current = optimisticLight !== null ? optimisticLight : status.light_on;
+    const newState = !current;
     setOptimisticLight(newState);
     setSyncing(true);
     onToggleLight();
 
-    // 5s ichida server javob bermasa — rollback
     syncTimer.current = setTimeout(() => {
       setOptimisticLight(null);
       setSyncing(false);
     }, 5000);
-  };
-
-  const handleMode = (mode) => {
-    onSetMode(mode);
   };
 
   if (!status) return <div className="empty-state">Qurilma ulanishini kutmoqda...</div>;
@@ -64,13 +60,13 @@ export default function Dashboard({ status, control, onToggleLight, onSetMode, c
       {/* Mode Selector */}
       <div className="card mode-card">
         <div className="mode-buttons">
-          <button className={control.mode === 'auto' ? 'active' : ''} onClick={() => handleMode('auto')}>
+          <button className={control.mode === 'auto' ? 'active' : ''} onClick={() => onSetMode('auto')}>
             <span>🤖</span> Avto
           </button>
-          <button className={control.mode === 'manual' ? 'active' : ''} onClick={() => handleMode('manual')}>
+          <button className={control.mode === 'manual' ? 'active' : ''} onClick={() => onSetMode('manual')}>
             <span>🖐</span> Qo'lda
           </button>
-          <button className={control.mode === 'schedule' ? 'active' : ''} onClick={() => handleMode('schedule')}>
+          <button className={control.mode === 'schedule' ? 'active' : ''} onClick={() => onSetMode('schedule')}>
             <span>📅</span> Jadval
           </button>
         </div>
