@@ -66,7 +66,6 @@ void setupWiFi() {
   while (WiFi.status() != WL_CONNECTED && millis() - start < 10000) {
     delay(250);
     Serial.print(".");
-    // Sensorlar shu paytda ham ishlaydi
   }
 
   if (WiFi.status() == WL_CONNECTED) {
@@ -77,10 +76,7 @@ void setupWiFi() {
     wifiConnected = false;
     wifiFailCount++;
     Serial.println("\nWiFi topilmadi. Offline ishlaydi.");
-    // 3 marta urinib bo'lsa — AP ochish
-    if (wifiFailCount >= 3) {
-      startAP();
-    }
+    startAP();
   }
 }
 
@@ -98,20 +94,20 @@ void checkWiFi() {
   if (WiFi.status() == WL_CONNECTED) {
     if (!wifiConnected) {
       wifiConnected = true;
-      wifiFailCount = 0;
       Serial.printf("WiFi ulandi! IP: %s\n", WiFi.localIP().toString().c_str());
-      if (!firebaseStarted) {
-        setupFirebase();
-        setupStatistics();
-        firebaseStarted = true;
-      }
-      // AP ni o'chirish
+      // AP o'chirish
       if (apMode) {
         dnsServer.stop();
         server.stop();
         WiFi.softAPdisconnect(true);
+        WiFi.mode(WIFI_STA);
         apMode = false;
         Serial.println("AP o'chirildi");
+      }
+      if (!firebaseStarted) {
+        setupFirebase();
+        setupStatistics();
+        firebaseStarted = true;
       }
     }
   } else {
@@ -119,11 +115,8 @@ void checkWiFi() {
       Serial.println("WiFi uzildi! Qayta ulanmoqda...");
       wifiConnected = false;
     }
-    WiFi.reconnect();
-    wifiFailCount++;
-    if (wifiFailCount >= 3 && !apMode) {
-      startAP();
-    }
+    WiFi.disconnect();
+    WiFi.begin(WIFI_SSID, WIFI_PASS);
   }
 }
 
