@@ -14,14 +14,6 @@ export default function Dashboard({ status, control, config, onToggleLight, onSe
 
   const saveConfig = () => { onUpdateConfig(tempConfig); setShowSettings(false); };
 
-  const colors = [
-    { name: 'Oq', value: '#ffffff' },
-    { name: 'Issiq', value: '#ffaa33' },
-    { name: 'Ko\'k', value: '#3388ff' },
-    { name: 'Yashil', value: '#33ff88' },
-    { name: 'Qizil', value: '#ff3333' },
-  ];
-
   return (
     <div className="dashboard">
       {/* Light Status */}
@@ -63,25 +55,6 @@ export default function Dashboard({ status, control, config, onToggleLight, onSe
             </div>
           </div>
         )}
-      </div>
-
-      {/* LED Color & Brightness */}
-      <div className="card">
-        <h3>🎨 LED sozlamalari</h3>
-        <div className="control-row">
-          <span>Rang:</span>
-          <div className="color-picker">
-            {colors.map(c => (
-              <button key={c.value} className={`color-btn ${control.led_color === c.value ? 'selected' : ''}`}
-                style={{ background: c.value }} onClick={() => onUpdateControl({ led_color: c.value })} title={c.name} />
-            ))}
-          </div>
-        </div>
-        <div className="control-row">
-          <span>Yorug'lik: {control.brightness || 100}%</span>
-        </div>
-        <input type="range" min="10" max="100" value={control.brightness || 100}
-          onChange={e => onUpdateControl({ brightness: +e.target.value })} className="brightness-slider" />
       </div>
 
       {/* Sensors */}

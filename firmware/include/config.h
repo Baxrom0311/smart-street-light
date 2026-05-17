@@ -5,11 +5,10 @@
 #define WIFI_PASS "baxrom0311"
 
 // Pin definitions
-#define TRIG_PIN 4    // Ultrasonic TRIG - xavfsiz output pin
-#define ECHO_PIN 16   // Ultrasonic ECHO - xavfsiz input pin
-#define LIGHT_PIN 34  // TEMT6000 analog - faqat input pin (ADC1)
-#define LED_STRIP_PIN 26  // WS2812B data pin (tested, working)
-#define NUM_LEDS 13       // LED strip soni
+#define TRIG_PIN 4    // Ultrasonic TRIG
+#define ECHO_PIN 16   // Ultrasonic ECHO
+#define LIGHT_PIN 34  // TEMT6000 analog (ADC1)
+#define RELAY_PIN 26  // Relay - LED yoqish/o'chirish
 #define LED_PIN 2     // Onboard LED (status)
 
 // Thresholds (defaults, overridden by Firebase)
