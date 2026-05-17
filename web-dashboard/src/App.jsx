@@ -1,97 +1,142 @@
 import { useState, useEffect } from 'react';
-import { db, auth } from './firebase';
+import { db } from './firebase';
 import { ref, onValue, set, update } from 'firebase/database';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { mockStatus, mockControl, mockConfig, mockHistory } from './mockData';
-import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Statistics from './components/Statistics';
 import MotionLog from './components/MotionLog';
 import './App.css';
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
-
 function App() {
-  const [user, setUser] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [status, setStatus] = useState(USE_MOCK ? mockStatus : null);
-  const [control, setControl] = useState(USE_MOCK ? mockControl : { mode: 'auto', manual_light: false, brightness: 100, led_color: '#ffffff' });
-  const [config, setConfig] = useState(USE_MOCK ? mockConfig : { timeout_sec: 30, light_threshold: 300, distance_threshold: 200 });
-  const [history, setHistory] = useState(USE_MOCK ? mockHistory : {});
-  const [tab, setTab] = useState('dashboard');
-  const [demoMode, setDemoMode] = useState(USE_MOCK);
+  const [status, setStatus] = useState(mockStatus);
+  const [control, setControl] = useState(mockControl);
+  const [config, setConfig] = useState(mockConfig);
+  const [history, setHistory] = useState(mockHistory);
+  const [tab, setTab] = useState('home');
+  const [isLive, setIsLive] = useState(false);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => { setUser(u); setAuthLoading(false); });
-    return unsub;
-  }, []);
-
-  useEffect(() => {
-    if (demoMode) return;
-    if (!user) return;
-    const unsub1 = onValue(ref(db, 'device/status'), snap => { if (snap.exists()) setStatus(snap.val()); });
-    const unsub2 = onValue(ref(db, 'device/control'), snap => { if (snap.exists()) setControl(snap.val()); });
-    const unsub3 = onValue(ref(db, 'device/config'), snap => { if (snap.exists()) setConfig(snap.val()); });
-    const unsub4 = onValue(ref(db, 'history'), snap => { if (snap.exists()) setHistory(snap.val()); });
+    if (!isLive) return;
+    const unsub1 = onValue(ref(db, 'device/status'), s => { if (s.exists()) setStatus(s.val()); });
+    const unsub2 = onValue(ref(db, 'device/control'), s => { if (s.exists()) setControl(s.val()); });
+    const unsub3 = onValue(ref(db, 'device/config'), s => { if (s.exists()) setConfig(s.val()); });
+    const unsub4 = onValue(ref(db, 'history'), s => { if (s.exists()) setHistory(s.val()); });
     return () => { unsub1(); unsub2(); unsub3(); unsub4(); };
-  }, [demoMode, user]);
+  }, [isLive]);
 
   const toggleLight = () => {
-    if (demoMode) { setControl(c => ({ ...c, manual_light: !c.manual_light })); setStatus(s => ({ ...s, light_on: !s.light_on })); return; }
+    if (!isLive) { setControl(c => ({ ...c, manual_light: !c.manual_light })); setStatus(s => ({ ...s, light_on: !s.light_on })); return; }
     set(ref(db, 'device/control/manual_light'), !control.manual_light);
   };
   const setMode = (mode) => {
-    if (demoMode) { setControl(c => ({ ...c, mode })); return; }
+    if (!isLive) { setControl(c => ({ ...c, mode })); return; }
     set(ref(db, 'device/control/mode'), mode);
   };
-  const updateConfig = (newConfig) => {
-    if (demoMode) { setConfig(c => ({ ...c, ...newConfig })); return; }
-    update(ref(db, 'device/config'), newConfig);
+  const updateConfig = (data) => {
+    if (!isLive) { setConfig(c => ({ ...c, ...data })); return; }
+    update(ref(db, 'device/config'), data);
   };
   const updateControl = (data) => {
-    if (demoMode) { setControl(c => ({ ...c, ...data })); return; }
+    if (!isLive) { setControl(c => ({ ...c, ...data })); return; }
     update(ref(db, 'device/control'), data);
   };
-  const switchMode = () => {
-    const next = !demoMode;
-    setDemoMode(next);
-    if (next) { setStatus(mockStatus); setControl(mockControl); setConfig(mockConfig); setHistory(mockHistory); }
-    else { setStatus(null); }
-  };
-
-  if (authLoading) return <div className="app"><div className="loading">Yuklanmoqda...</div></div>;
-  if (!user && !demoMode) return <Login />;
-
-  // Device online check (if uptime updated in last 10s)
-  const isOnline = status && (Date.now() / 1000 - status.uptime < 30);
 
   return (
     <div className="app">
-      <header>
-        <h1>🔆 Smart Street Light</h1>
-        <div className="device-status">
-          <span className={`status-dot ${status && !demoMode ? 'online' : demoMode ? 'online' : 'offline'}`}></span>
-          <span>{demoMode ? 'Demo' : status ? 'Online' : 'Offline'}</span>
+      {/* Top bar */}
+      <header className="topbar">
+        <div className="topbar-left">
+          <h1>Smart Light</h1>
         </div>
-        <nav>
-          <button className={tab === 'dashboard' ? 'active' : ''} onClick={() => setTab('dashboard')}>Boshqaruv</button>
-          <button className={tab === 'stats' ? 'active' : ''} onClick={() => setTab('stats')}>Statistika</button>
-          <button className={tab === 'log' ? 'active' : ''} onClick={() => setTab('log')}>Log</button>
-          <button className={demoMode ? 'demo-active' : 'demo'} onClick={switchMode}>{demoMode ? '🟡 Demo' : '🟢 Live'}</button>
-          {user && <button className="logout" onClick={() => signOut(auth)}>🚪</button>}
-        </nav>
+        <button className={`live-toggle ${isLive ? 'live' : 'demo'}`} onClick={() => setIsLive(!isLive)}>
+          <span className="live-dot"></span>
+          {isLive ? 'Live' : 'Demo'}
+        </button>
       </header>
-      <main>
-        {tab === 'dashboard' && (
-          <Dashboard status={status} control={control} config={config} onToggleLight={toggleLight} onSetMode={setMode} onUpdateConfig={updateConfig} onUpdateControl={updateControl} demoMode={demoMode} />
-        )}
+
+      {/* Content */}
+      <main className="content">
+        {tab === 'home' && <Dashboard status={status} control={control} config={config} onToggleLight={toggleLight} onSetMode={setMode} onUpdateConfig={updateConfig} onUpdateControl={updateControl} />}
         {tab === 'stats' && <Statistics history={history} />}
-        {tab === 'log' && <MotionLog demoMode={demoMode} />}
+        {tab === 'log' && <MotionLog demoMode={!isLive} />}
+        {tab === 'settings' && (
+          <Settings config={config} control={control} onUpdateConfig={updateConfig} onUpdateControl={updateControl} />
+        )}
       </main>
-      <footer className="app-footer">
-        <p>🔆 Smart Street Light IoT v3.0</p>
-        <p>Diplom ishi — Baxrom, 2026</p>
-      </footer>
+
+      {/* Bottom Navigation */}
+      <nav className="bottom-nav">
+        <button className={tab === 'home' ? 'active' : ''} onClick={() => setTab('home')}>
+          <span className="nav-icon">🏠</span>
+          <span className="nav-label">Bosh sahifa</span>
+        </button>
+        <button className={tab === 'stats' ? 'active' : ''} onClick={() => setTab('stats')}>
+          <span className="nav-icon">📊</span>
+          <span className="nav-label">Statistika</span>
+        </button>
+        <button className={tab === 'log' ? 'active' : ''} onClick={() => setTab('log')}>
+          <span className="nav-icon">📋</span>
+          <span className="nav-label">Log</span>
+        </button>
+        <button className={tab === 'settings' ? 'active' : ''} onClick={() => setTab('settings')}>
+          <span className="nav-icon">⚙️</span>
+          <span className="nav-label">Sozlama</span>
+        </button>
+      </nav>
+    </div>
+  );
+}
+
+function Settings({ config, control, onUpdateConfig, onUpdateControl }) {
+  const [tempConfig, setTempConfig] = useState(config);
+
+  const save = () => onUpdateConfig(tempConfig);
+
+  return (
+    <div className="settings-page">
+      <div className="settings-section">
+        <h3>Qurilma sozlamalari</h3>
+        <div className="setting-item">
+          <label>Harakat timeout</label>
+          <div className="setting-value">
+            <input type="number" value={tempConfig.timeout_sec} onChange={e => setTempConfig({ ...tempConfig, timeout_sec: +e.target.value })} />
+            <span>soniya</span>
+          </div>
+        </div>
+        <div className="setting-item">
+          <label>Yorug'lik chegarasi</label>
+          <div className="setting-value">
+            <input type="number" value={tempConfig.light_threshold} onChange={e => setTempConfig({ ...tempConfig, light_threshold: +e.target.value })} />
+            <span>lux</span>
+          </div>
+        </div>
+        <div className="setting-item">
+          <label>Aniqlash masofasi</label>
+          <div className="setting-value">
+            <input type="number" value={tempConfig.distance_threshold} onChange={e => setTempConfig({ ...tempConfig, distance_threshold: +e.target.value })} />
+            <span>cm</span>
+          </div>
+        </div>
+        <button className="btn-primary" onClick={save}>Saqlash</button>
+      </div>
+
+      <div className="settings-section">
+        <h3>Jadval rejimi</h3>
+        <div className="setting-item">
+          <label>Yoqish vaqti</label>
+          <input type="time" value={control.schedule_on || '18:00'} onChange={e => onUpdateControl({ schedule_on: e.target.value })} />
+        </div>
+        <div className="setting-item">
+          <label>O'chirish vaqti</label>
+          <input type="time" value={control.schedule_off || '06:00'} onChange={e => onUpdateControl({ schedule_off: e.target.value })} />
+        </div>
+      </div>
+
+      <div className="settings-section">
+        <h3>Haqida</h3>
+        <p className="about-text">Smart Street Light IoT v5.0</p>
+        <p className="about-text">Diplom ishi — Baxrom, 2026</p>
+      </div>
     </div>
   );
 }
