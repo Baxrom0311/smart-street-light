@@ -202,6 +202,17 @@ Oddiy ko'cha chiroqlari tun bo'yi (12 soat) yonib turadi. Bizning tizim:
 
 **Baxrom** — Diplom ishi, 2026
 
+## 📚 Dokumentatsiya
+
+| Hujjat | Tavsif |
+|--------|--------|
+| [Arxitektura](docs/architecture.md) | Tizim diagrammasi, ma'lumot oqimi |
+| [Hardware](docs/hardware.md) | Ulash sxemasi, pin konfiguratsiya |
+| [Software](docs/software.md) | Dasturiy ta'minot tuzilishi |
+| [Database](docs/database.md) | Firebase DB strukturasi |
+| [Energiya tejash](docs/energy-saving.md) | Hisoblash va natijalar |
+| [Foydalanuvchi qo'llanmasi](docs/user-guide.md) | Ishlatish bo'yicha |
+
 ## 📄 Litsenziya
 
 MIT License
