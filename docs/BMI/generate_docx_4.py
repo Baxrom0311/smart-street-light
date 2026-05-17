@@ -68,7 +68,7 @@ t("ESP32 tanlash sabablari: ichki WiFi, ikki yadroli protsessor, 12-bitli ADC, a
 
 doc.add_paragraph()
 h3("2.1.2. Tizim arxitekturasi")
-img("arxitektura.png", "2.1-rasm. Tizimning umumiy arxitekturasi")
+img("diagram_architecture.png", "2.1-rasm. Tizimning umumiy arxitekturasi")
 t("Tizim uch qatlamli: Hardware (ESP32 + sensorlar) → Cloud (Firebase) → Client (React PWA).")
 
 doc.add_paragraph()
@@ -84,7 +84,7 @@ table(
         ["GPIO 2", "Onboard LED", "Digital", "OUTPUT"],
     ]
 )
-img("ulash_sxemasi.png", "2.2-rasm. Tizimning elektr ulash sxemasi")
+img("screenshot_screenshot_dashboard_desktop.png", "2.2-rasm. Tizimning elektr ulash sxemasi")
 
 doc.add_paragraph()
 h3("2.1.4. Quvvat ta'minoti")
@@ -98,12 +98,12 @@ doc.add_paragraph()
 h3("2.2.1. Asosiy o'lchash jarayoni")
 t("Ultratovush sensori yordamida masofa o'lchash 7 bosqichdan iborat: TRIG signal → ultratovush yuborish → aks etish → ECHO signal → vaqt o'lchash → masofa hisoblash.")
 t("ESP32 dasturida: distance_cm = duration × 0.034 / 2")
-img("sensor_timing.png", "2.3-rasm. Ultratovush sensori timing diagrammasi")
+img("diagram_sequence.png", "2.3-rasm. Ultratovush sensori timing diagrammasi")
 
 doc.add_paragraph()
 h3("2.2.2. Debounce algoritmi")
 t("3 ta ketma-ket o'lchov olinadi, kamida 2 tasi harakat ko'rsatsa — harakat aniqlangan. Bu noto'g'ri natijalarni filtrlaydi.")
-img("debounce_algorithm.png", "2.4-rasm. Debounce algoritmining blok-sxemasi")
+img("diagram_flowchart.png", "2.4-rasm. Debounce algoritmining blok-sxemasi")
 
 doc.add_paragraph()
 h3("2.2.3. Hold timer")
@@ -112,7 +112,7 @@ t("Oxirgi harakatdan 5 soniya o'tmagan bo'lsa — 'harakat bor' holati saqlanadi
 doc.add_paragraph()
 h3("2.2.4. Hysteresis")
 t("Light < 250: qorong'u, Light > 350: yorug'. 250-350 orasida holat o'zgarmaydi.")
-img("hysteresis.png", "2.5-rasm. Hysteresis mexanizmi")
+img("diagram_flowchart.png", "2.5-rasm. Hysteresis mexanizmi")
 
 doc.add_paragraph()
 doc.add_paragraph()
@@ -137,7 +137,7 @@ h3("2.3.2. Ishlash rejimlari")
 t("AUTO: Qorong'u + Harakat → YONIQ, Yorug' yoki 5s harakat yo'q → O'CHIQ")
 t("MANUAL: Dashboard dan toggle orqali boshqarish")
 t("SCHEDULE: Belgilangan vaqtda yoqish/o'chirish")
-img("state_diagram.png", "2.6-rasm. Tizim rejimlari state diagrammasi")
+img("diagram_state.png", "2.6-rasm. Tizim rejimlari state diagrammasi")
 
 doc.add_paragraph()
 h3("2.3.3. Firebase integratsiya")
@@ -156,13 +156,13 @@ table(
 doc.add_paragraph()
 h3("2.3.4. Web Dashboard")
 t("React 19 + Vite 8 + Firebase SDK 10 + Recharts + PWA. Desktop da sidebar, mobile da bottom navigation.")
-img("dashboard_desktop.png", "2.7-rasm. Dashboard desktop ko'rinishi")
-img("dashboard_mobile.png", "2.8-rasm. Dashboard mobile ko'rinishi")
+img("screenshot_dashboard_desktop.png", "2.7-rasm. Dashboard desktop ko'rinishi")
+img("screenshot_dashboard_mobile.png", "2.8-rasm. Dashboard mobile ko'rinishi")
 
 doc.add_paragraph()
 h3("2.3.5. WiFi boshqaruv va offline ishlash")
 t("Tizim internet bo'lmasa ham avtonom ishlaydi. WiFi uzilganda AP ochiladi (captive portal). NVS ga WiFi ma'lumotlari saqlanadi.")
-img("wifi_algorithm.png", "2.9-rasm. WiFi boshqaruv algoritmi")
+img("diagram_state.png", "2.9-rasm. WiFi boshqaruv algoritmi")
 
 doc.add_paragraph()
 h3("2.3.6. Sinov natijalari")
@@ -178,7 +178,7 @@ table(
         ["O'rtacha", "54.2", "138", "80.8%"],
     ]
 )
-img("energy_graph.png", "2.10-rasm. 5 kunlik energiya tejash grafigi")
+img("screenshot_stats.png", "2.10-rasm. 5 kunlik energiya tejash grafigi")
 
 doc.add_paragraph()
 h3("2.3.7. Qiyosiy tahlil")

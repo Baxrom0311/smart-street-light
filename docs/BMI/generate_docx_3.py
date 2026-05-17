@@ -84,7 +84,7 @@ h3("1.1.2. Smart Street (Aqlli ko'cha) konsepsiyasi")
 t("Smart Street — bu zamonaviy axborot-kommunikatsiya texnologiyalari, sensorlar va IoT qurilmalari yordamida ko'cha infratuzilmasini aqlli boshqarish konsepsiyasidir. Bu konsepsiya Smart City (Aqlli shahar) ning muhim tarkibiy qismi hisoblanadi [8].")
 t("Aqlli ko'cha yoritish tizimi quyidagi asosiy komponentlardan iborat: 1) Sensorlar qatlami — harakatni aniqlash, yorug'lik darajasini o'lchash; 2) Boshqaruv qatlami — mikrokontrollerlar yordamida qaror qabul qilish; 3) Aloqa qatlami — WiFi orqali ma'lumotlarni uzatish; 4) Bulutli qatlam — Firebase da saqlash va tahlil; 5) Foydalanuvchi interfeysi — PWA dashboard.")
 
-img("arxitektura.png", "1.1-rasm. Aqlli ko'cha yoritish tizimining umumiy arxitekturasi")
+img("diagram_architecture.png", "1.1-rasm. Aqlli ko'cha yoritish tizimining umumiy arxitekturasi")
 
 doc.add_paragraph()
 h3("1.1.3. Energiya tejamkorlik muammosi va yechimlar")
@@ -130,7 +130,7 @@ t("Ultratovush sensori \"Time of Flight\" (ToF) prinsipiga asoslanadi [16]:")
 t("d = (t × v) / 2")
 t("bu yerda: d — masofa (m), t — to'lqinning borish va qaytish vaqti (s), v — tovush tezligi (343 m/s). 2 ga bo'linadi, chunki to'lqin ikki marta yo'l bosadi.")
 
-img("sensor_timing.png", "1.2-rasm. Ultratovush sensori timing diagrammasi")
+img("diagram_sequence.png", "1.2-rasm. Ultratovush sensori timing diagrammasi")
 
 t("ESP32 dasturida: distance_cm = duration × 0.034 / 2, bu yerda duration — pulseIn() qaytargan mikrosekundlardagi qiymat.")
 
@@ -172,7 +172,7 @@ t("1) Debounce — 3 ta o'lchov ichida 2 tasi harakat ko'rsatsa, harakat aniqlan
 t("2) Hold timer — 5 soniya davomida 'harakat bor' holati saqlanadi;")
 t("3) Hysteresis — yorug'lik chegarasida tebranishni bartaraf etadi (250/350).")
 
-img("debounce_algorithm.png", "1.3-rasm. Harakatni aniqlash algoritmining blok-sxemasi")
+img("diagram_flowchart.png", "1.3-rasm. Harakatni aniqlash algoritmining blok-sxemasi")
 
 doc.add_paragraph()
 doc.add_paragraph()
