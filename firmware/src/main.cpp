@@ -2,6 +2,7 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <DNSServer.h>
+#include <Preferences.h>
 #include "config.h"
 #include "sensors.h"
 #include "light_control.h"
@@ -15,6 +16,9 @@ static WebServer server(80);
 static DNSServer dnsServer;
 static unsigned long wifiRetryTime = 0;
 static int wifiFailCount = 0;
+static Preferences prefs;
+static String savedSSID;
+static String savedPass;
 
 // AP mode web sahifasi — WiFi sozlash
 void handleRoot() {
@@ -36,10 +40,14 @@ void handleSave() {
   String pass = server.arg("pass");
   server.send(200, "text/html", "<html><body style='background:#0a0e1a;color:#e8ecf4;text-align:center;padding:40px'>"
     "<h2>Saqlanmoqda...</h2><p>Qurilma qayta ishga tushadi</p></body></html>");
-  delay(1000);
-  // WiFi credentials ni NVS ga saqlash
-  WiFi.begin(ssid.c_str(), pass.c_str());
-  apMode = false;
+  delay(500);
+  // NVS ga saqlash
+  prefs.begin("wifi", false);
+  prefs.putString("ssid", ssid);
+  prefs.putString("pass", pass);
+  prefs.end();
+  Serial.printf("WiFi saqlandi: %s\n", ssid.c_str());
+  delay(500);
   ESP.restart();
 }
 
@@ -57,9 +65,15 @@ void startAP() {
 }
 
 void setupWiFi() {
+  // NVS dan saqlangan WiFi ni o'qish
+  prefs.begin("wifi", true);
+  savedSSID = prefs.getString("ssid", WIFI_SSID);
+  savedPass = prefs.getString("pass", WIFI_PASS);
+  prefs.end();
+
   WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
-  Serial.print("WiFi ga ulanmoqda");
+  WiFi.begin(savedSSID.c_str(), savedPass.c_str());
+  Serial.printf("WiFi ga ulanmoqda (%s)", savedSSID.c_str());
 
   // Non-blocking: 10s kutish
   unsigned long start = millis();
@@ -116,7 +130,7 @@ void checkWiFi() {
       wifiConnected = false;
     }
     WiFi.disconnect();
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
+    WiFi.begin(savedSSID.c_str(), savedPass.c_str());
     // 5s kutish
     unsigned long start = millis();
     while (WiFi.status() != WL_CONNECTED && millis() - start < 5000) delay(250);
