@@ -117,6 +117,12 @@ void checkWiFi() {
     }
     WiFi.disconnect();
     WiFi.begin(WIFI_SSID, WIFI_PASS);
+    // 5s kutish
+    unsigned long start = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - start < 5000) delay(250);
+    if (WiFi.status() != WL_CONNECTED && !apMode) {
+      startAP();
+    }
   }
 }
 
