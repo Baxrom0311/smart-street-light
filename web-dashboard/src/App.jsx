@@ -164,6 +164,16 @@ function Login() {
 
 function Settings({ config, control, onUpdateConfig, onUpdateControl }) {
   const [tempConfig, setTempConfig] = useState(config);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => { setTempConfig(config); }, [config]);
+
+  const handleSave = () => {
+    onUpdateConfig(tempConfig);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
   return (
     <div className="settings-page">
       <div className="settings-section">
@@ -171,7 +181,7 @@ function Settings({ config, control, onUpdateConfig, onUpdateControl }) {
         <div className="setting-item"><label>Harakat timeout</label><div className="setting-value"><input type="number" value={tempConfig.timeout_sec} onChange={e => setTempConfig({ ...tempConfig, timeout_sec: +e.target.value })} /><span>s</span></div></div>
         <div className="setting-item"><label>Yorug'lik chegarasi</label><div className="setting-value"><input type="number" value={tempConfig.light_threshold} onChange={e => setTempConfig({ ...tempConfig, light_threshold: +e.target.value })} /><span>lux</span></div></div>
         <div className="setting-item"><label>Aniqlash masofasi</label><div className="setting-value"><input type="number" value={tempConfig.distance_threshold} onChange={e => setTempConfig({ ...tempConfig, distance_threshold: +e.target.value })} /><span>cm</span></div></div>
-        <button className="btn-primary" onClick={() => onUpdateConfig(tempConfig)}>Saqlash</button>
+        <button className="btn-primary" onClick={handleSave}>{saved ? '✓ Saqlandi!' : 'Saqlash'}</button>
       </div>
       <div className="settings-section">
         <h3>Jadval rejimi</h3>
