@@ -14,27 +14,7 @@ static FirebaseConfig fbConfig;
 static bool firebaseReady = false;
 static unsigned long lastSend = 0;
 static unsigned long lastMotionTs = 0;
-
-void streamCallback(StreamData data) {
-  String path = data.dataPath();
-
-  if (path == "/mode") {
-    setMode(data.stringData());
-    Serial.printf("Firebase mode: %s\n", data.stringData().c_str());
-  } else if (path == "/manual_light") {
-    setManualLight(data.boolData());
-    Serial.printf("Firebase manual_light: %d\n", data.boolData());
-  } else if (path == "/" && data.dataTypeEnum() == firebase_rtdb_data_type_json) {
-    FirebaseJson *json = data.to<FirebaseJson *>();
-    FirebaseJsonData result;
-    if (json->get(result, "mode")) setMode(result.stringValue);
-    if (json->get(result, "manual_light")) setManualLight(result.boolValue);
-  }
-}
-
-void streamTimeoutCallback(bool timeout) {
-  if (timeout) Serial.println("Firebase stream timeout, reconnecting...");
-}
+static bool streamConnected = false;
 
 void setupFirebase() {
   fbConfig.api_key = FIREBASE_API_KEY;
@@ -49,23 +29,60 @@ void setupFirebase() {
   fbdo.setBSSLBufferSize(2048, 512);
   streamData.setBSSLBufferSize(2048, 512);
 
-  // Stream for control commands
-  if (Firebase.beginStream(streamData, "/device/control")) {
-    Firebase.setStreamCallback(streamData, streamCallback, streamTimeoutCallback);
-    Serial.println("Firebase stream boshlandi");
-  }
-
   firebaseReady = true;
   Serial.println("Firebase tayyor");
+}
+
+static void handleStream() {
+  if (!streamConnected) {
+    if (Firebase.beginStream(streamData, "/device/control")) {
+      streamConnected = true;
+      Serial.println("Stream ulandi");
+    }
+    return;
+  }
+
+  if (!Firebase.readStream(streamData)) {
+    Serial.println("Stream xato, qayta ulanish...");
+    streamConnected = false;
+    return;
+  }
+
+  if (streamData.streamAvailable()) {
+    String path = streamData.dataPath();
+    Serial.printf("Stream: %s = ", path.c_str());
+
+    if (path == "/mode") {
+      String val = streamData.stringData();
+      setMode(val);
+      Serial.println(val);
+    } else if (path == "/manual_light") {
+      bool val = streamData.boolData();
+      setManualLight(val);
+      Serial.println(val ? "true" : "false");
+    } else if (path == "/") {
+      // Initial load - full JSON
+      FirebaseJson *json = streamData.to<FirebaseJson *>();
+      FirebaseJsonData result;
+      if (json->get(result, "mode")) setMode(result.stringValue);
+      if (json->get(result, "manual_light")) setManualLight(result.boolValue);
+      Serial.println("(full sync)");
+    }
+  }
 }
 
 void loopFirebase() {
   if (WiFi.status() != WL_CONNECTED) return;
   if (!Firebase.ready()) return;
+
+  // Stream tekshirish — har loop da
+  handleStream();
+
+  // Status yuborish — har 3s
   if (millis() - lastSend < 3000) return;
   lastSend = millis();
 
-  // Read config periodically (every 30s)
+  // Config o'qish — har 30s
   static unsigned long lastConfig = 0;
   if (millis() - lastConfig > 30000) {
     lastConfig = millis();
@@ -80,7 +97,7 @@ void loopFirebase() {
     }
   }
 
-  // Motion log (rising edge only)
+  // Motion log
   static bool lastMotionState = false;
   bool currentMotion = isMotionDetected();
   if (currentMotion && !lastMotionState) {
@@ -95,6 +112,7 @@ void loopFirebase() {
 
   if (currentMotion) lastMotionTs = millis() / 1000;
 
+  // Status yuborish
   FirebaseJson json;
   json.set("light_on", isLightOn());
   json.set("motion_detected", isMotionDetected());
