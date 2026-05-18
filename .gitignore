@@ -78,3 +78,5 @@ web-dashboard/dist/
 # Agent skills
 .agents/
 skills-lock.json
+.DS_Store
+*/.DS_Store
