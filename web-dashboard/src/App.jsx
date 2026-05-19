@@ -191,7 +191,7 @@ function Settings({ config, control, onUpdateConfig, onUpdateControl }) {
       <div className="settings-section">
         <h3>Haqida</h3>
         <p className="about-text">Smart Street Light IoT v6.0</p>
-        <p className="about-text">Diplom ishi — Baxrom, 2026</p>
+        <p className="about-text">Diplom ishi — Laylo, 2026</p>
       </div>
     </div>
   );
